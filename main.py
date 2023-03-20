@@ -41,10 +41,18 @@ def insert_new_client(cursor, name, patronymic, sirname, email):
 # 3. Функция, позволяющая добавить телефон для существующего клиента
 def insert_phone(cursor, client_id, phone_number):
     cursor.execute('''
-            INSERT INTO phone (client_id, phone_number)
-            VALUES (%s, %s)
+        INSERT INTO phone (client_id, phone_number)
+        VALUES (%s, %s)
         ''', (client_id, phone_number))
     conn.commit()
+
+# 4. Функция, позволяющая изменить данные о клиенте
+def client_data_update(cursor, id, name=None, patronymic=None, sirname=None, email=None):
+
+    cursor.execute('''
+        UPDATE client_name
+        SET %s = 
+    ''')
 
 with conn.cursor() as cur:
     insert_phone(cur, '1', '79169053323')
