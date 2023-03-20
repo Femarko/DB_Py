@@ -7,16 +7,14 @@ names_of_tables = config.names_of_tables
 
 conn = pg.connect(database=database, user=user, password=password)
 
+# # Функция, удаляющая таблицы
+# def delete_relation(relation):
+#     cur.execute('''DROP TABLE %s;''')
+#     conn.commit()
 
-def delete_relations():
-    cur.execute('''
-        DROP TABLE phone;
-        DROP TABLE client_name;
-    ''')
-    conn.commit()
-
+# 1. Функция, создающая структуру БД (таблицы)
 def create_relations():
-    cur.execute('''                    
+    cur.execute('''
         CREATE TABLE IF NOT EXISTS client_name(
         id SERIAL PRIMARY KEY,
         name VARCHAR(120) NOT NULL,
@@ -28,13 +26,33 @@ def create_relations():
         CREATE TABLE IF NOT EXISTS phone(
         id SERIAL PRIMARY KEY,
         client_id INTEGER NOT NULL REFERENCES client_name(id),
-        phone_number INTEGER);
+        phone_number VARCHAR(12));
         ''')
     conn.commit()
 
+# 2. Функция, позволяющая добавить нового клиента
+def insert_new_client(cursor, name, patronymic, sirname, email):
+    cursor.execute('''
+        INSERT INTO client_name (name, patronymic, sirname, email)
+        VALUES (%s, %s, %s, %s)
+    ''', (name, patronymic, sirname, email))
+    conn.commit()
+
+# 3. Функция, позволяющая добавить телефон для существующего клиента
+def insert_phone(cursor, client_id, phone_number):
+    cursor.execute('''
+            INSERT INTO phone (client_id, phone_number)
+            VALUES (%s, %s)
+        ''', (client_id, phone_number))
+    conn.commit()
 
 with conn.cursor() as cur:
-    create_relations()
+    insert_phone(cur, '1', '79169053323')
+
+    conn.commit()
+
+    # create_relations()
+
 
 
 conn.close()
