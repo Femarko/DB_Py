@@ -56,6 +56,18 @@ def client_data_update(cursor, id, name=None, patronymic=None, sirname=None, ema
 
 
 
+def client_data_update(cursor, id, name=None, patronymic=None, sirname=None, email=None):
+    columns_dict = {'name': name, 'patronymic': patronymic, 'sirname': sirname, 'email': email}
+
+    for column_name, column_data in columns_dict.items():
+        if columns_dict[column_name] is not None:
+            cursor.execute('''
+                UPDATE Client 
+                SET %s
+                WHERE id=%(id)s;''', (*column_s_list, id,))
+        else:
+            print(column)
+
 
 with conn.cursor() as cur:
     insert_phone(cur, '1', '79169053323')
