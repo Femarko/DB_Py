@@ -48,11 +48,14 @@ def insert_phone(cursor, client_id, phone_number):
 
 # 4. Функция, позволяющая изменить данные о клиенте
 def client_data_update(cursor, id, name=None, patronymic=None, sirname=None, email=None):
-
+    column_s_list = [name, patronymic, sirname, email]
     cursor.execute('''
-        UPDATE client_name
-        SET %s = 
-    ''')
+        UPDATE Client
+        SET сюда можно будет указать любой параметр, например name, остальные останутся прежние.
+        WHERE client_id=client_id;''', (*column_s_list, id,))
+
+
+
 
 with conn.cursor() as cur:
     insert_phone(cur, '1', '79169053323')
