@@ -1,4 +1,5 @@
 import psycopg2 as pg
+from psycopg2 import sql
 import config
 database = config.database
 user = config.user
@@ -6,11 +7,6 @@ password = config.password
 names_of_tables = config.names_of_tables
 
 conn = pg.connect(database=database, user=user, password=password)
-
-# # Функция, удаляющая таблицы
-# def delete_relation(relation):
-#     cur.execute('''DROP TABLE %s;''')
-#     conn.commit()
 
 # 1. Функция, создающая структуру БД (таблицы)
 def create_relations():
@@ -106,13 +102,47 @@ def delete_client(cursor, client_id):
             DELETE FROM client_name WHERE id = %s;    
         ''', (client_id,))
 
+# 7. Функция, позволяющая найти клиента по его данным: имени, фамилии, email или телефону
+def find_client(cursor, id, name=None, patronymic=None, sirname=None, email=None, phone=None):
+    client_name_data = {
+        'client_name':{'id': id,
+                       'name': name,
+                       'patronymic': patronymic,
+                       'sirname': sirname,
+                       'email': email,
+                       'phone': phone
+                       },
+        'phone': phone
+    }
+    for key, value in client_name_data['client_name'].items():
+        if value is not None:
+            table_name = 'client_name'
+            qwer = sql.SQL('''
+                SELECT id FROM {table_name} WHERE {column_name}={column_value}
+                ''').format(
+                table_name = sql.Identifier(table_name),
+                column_name = sql.Identifier(key),
+                column_value = sql.Identifier(value)
+            )
+        else:
+            if client_name_data['phone'] is not None:
+                table_name = 'phone'
+                qwer = sql.SQL('''
+                                SELECT id FROM {table_name} WHERE {column_name}={column_value}
+                                ''').format(
+                    table_name=sql.Identifier(table_name),
+                    column_name=sql.Identifier(key),
+                    column_value=sql.Identifier(value)
+                )
+
+    return cursor.fetchall()
+
 
 with conn.cursor() as cur:
     # client_data_update(cur, '1', name='Feokt')
     # print(insert_new_client(cur, '123', '123', '123', '124', '124'))
-    delete_client(cur, 2)
-
-
+    # delete_client(cur, 2)
+    print(find_client(cur, 4, 'Semen', 'Semenov'))
     conn.commit()
 
     # create_relations()
