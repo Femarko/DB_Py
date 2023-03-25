@@ -74,7 +74,7 @@ def client_data_update(cursor, id, name=None, patronymic=None, sirname=None, ema
             WHERE id = %s;''', (email, id))
 
 # 5. Функция, позволяющая удалить телефон для существующего клиента
-def delete_phone_number(cursor, id):
+def delete_phone_number(cursor, client_id):
     cursor.execute('''
                 SELECT id FROM client_name; 
             ''')
@@ -83,17 +83,34 @@ def delete_phone_number(cursor, id):
     for element in res:
         res_list.append(element[0])
 
-    if id not in res_list:
+    if client_id not in res_list:
         print('Wrong id!')
     else:
         cursor.execute('''
             DELETE FROM phone WHERE phone.client_id = %s;    
-        ''', (id,))
+        ''', (client_id,))
+
+# 6. Функция, позволяющая удалить существующего клиента
+def delete_client(cursor, client_id):
+    cursor.execute('''
+                    SELECT id FROM client_name; 
+                ''')
+    res = cursor.fetchall()
+    res_list = []
+    for element in res:
+        res_list.append(element[0])
+    if client_id not in res_list:
+        print('Wrong id!')
+    else:
+        cursor.execute('''
+            DELETE FROM client_name WHERE id = %s;    
+        ''', (client_id,))
+
 
 with conn.cursor() as cur:
     # client_data_update(cur, '1', name='Feokt')
     # print(insert_new_client(cur, '123', '123', '123', '124', '124'))
-    delete_phone_number(cur, 6)
+    delete_client(cur, 2)
 
 
     conn.commit()
