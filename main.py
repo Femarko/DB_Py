@@ -103,38 +103,61 @@ def delete_client(cursor, client_id):
         ''', (client_id,))
 
 # 7. Функция, позволяющая найти клиента по его данным: имени, фамилии, email или телефону
-def find_client(cursor, id, name=None, patronymic=None, sirname=None, email=None, phone=None):
+def find_client(cursor, id=None, name=None, patronymic=None, sirname=None, email=None, phone=None):
     client_name_data = {
-        'client_name':{'id': id,
-                       'name': name,
-                       'patronymic': patronymic,
-                       'sirname': sirname,
-                       'email': email,
-                       'phone': phone
-                       },
+        'client_name':{
+            'id': id,
+            'name': name,
+            'patronymic': patronymic,
+            'sirname': sirname,
+            'email': email,
+            'phone': phone
+        },
         'phone': phone
     }
-    for key, value in client_name_data['client_name'].items():
-        if value is not None:
-            table_name = 'client_name'
-            qwer = sql.SQL('''
-                SELECT id FROM {table_name} WHERE {column_name}={column_value}
-                ''').format(
-                table_name = sql.Identifier(table_name),
-                column_name = sql.Identifier(key),
-                column_value = sql.Identifier(value)
-            )
-        else:
-            if client_name_data['phone'] is not None:
-                table_name = 'phone'
+    for name_of_table in client_name_data:
+        for key, value in client_name_data['client_name'].items():
+            if value is not None:
+                # table_name = name_of_table
                 qwer = sql.SQL('''
-                                SELECT id FROM {table_name} WHERE {column_name}={column_value}
-                                ''').format(
-                    table_name=sql.Identifier(table_name),
-                    column_name=sql.Identifier(key),
-                    column_value=sql.Identifier(value)
+                    SELECT id, name, patronymic, sirname, email FROM {table_name} WHERE {column_name} = {column_value}
+                    ''').format(
+                    table_name = sql.Identifier(name_of_table),
+                    column_name = sql.Identifier(key.strip()),
+                    column_value = sql.Identifier(value)
                 )
+            else:
 
+                if client_name_data['phone'] is not None:
+                    # table_name = name_of_table
+                    qwer = sql.SQL(f'''
+                                    SELECT
+                                        client_name.id,
+                                        client_name.name,
+                                        client_name.patronymic,
+                                        client_name.sirname,
+                                        client_name.email
+                                    FROM phone
+                                    JOIN client_name ON phone.client_id = client_name.id 
+                                    WHERE phone.phone_number = {column_value};
+                                    ''').format(
+                                            # table_name=sql.Identifier(name_of_table),
+                                            column_value=sql.Identifier(name_of_table['phone'])
+                                            )
+                        # column_name=sql.Identifier(key)
+        cursor.execute(qwer)
+        return cursor.fetchall()
+
+def test_sql(cursor, id=None, name=None, patronymic=None, sirname=None, email=None, phone=None):
+    qwer = sql.SQL('''
+        SELECT
+            id,
+            name,patronymic,
+            sirname,
+            email
+        FROM {table_name}''').format(
+        table_name=sql.Identifier('client_name'))
+    cursor.execute(qwer)
     return cursor.fetchall()
 
 
@@ -142,7 +165,9 @@ with conn.cursor() as cur:
     # client_data_update(cur, '1', name='Feokt')
     # print(insert_new_client(cur, '123', '123', '123', '124', '124'))
     # delete_client(cur, 2)
-    print(find_client(cur, 4, 'Semen', 'Semenov'))
+    # print(find_client(cur, 4, 'Semen', 'Semenov'))
+    # find_client(cur, name='Semen')
+    print(test_sql(cur))
     conn.commit()
 
     # create_relations()
