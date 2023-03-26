@@ -155,18 +155,15 @@ def test_sql(cursor, id=None, name=None, patronymic=None, sirname=None, email=No
             name,patronymic,
             sirname,
             email
-        FROM {table_name}''').format(
-        table_name=sql.Identifier('client_name'))
+        FROM {table_name} WHERE {column_name} = {column_value}''').format(
+        table_name=sql.Identifier('client_name'),
+        column_name=sql.Identifier('id'),
+        column_value=sql.Identifier('7')
+    )
     cursor.execute(qwer)
     return cursor.fetchall()
 
-
 with conn.cursor() as cur:
-    # client_data_update(cur, '1', name='Feokt')
-    # print(insert_new_client(cur, '123', '123', '123', '124', '124'))
-    # delete_client(cur, 2)
-    # print(find_client(cur, 4, 'Semen', 'Semenov'))
-    # find_client(cur, name='Semen')
     print(test_sql(cur))
     conn.commit()
 
