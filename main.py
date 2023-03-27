@@ -4,7 +4,7 @@ import config
 database = config.database
 user = config.user
 password = config.password
-names_of_tables = config.names_of_tables
+names_of_tables = config.names_of_tables # names_of_tables = ['client_name', 'phone']
 
 conn = pg.connect(database=database, user=user, password=password)
 
