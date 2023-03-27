@@ -142,7 +142,14 @@ def find_client(cursor, id=None, name=None, patronymic=None, sirname=None, email
 
 
 with conn.cursor() as cur:
-    print(find_client(cur, name='Sergey'))
+    create_relations()
+    insert_new_client(cur, 'Alex', 'Alexovitch', 'Alexov', 'alex@alex.com', phone='1234544')
+    insert_phone(cur, '1', '12345')
+    client_data_update(cur, '1', name='Venya')
+    delete_phone_number(cur, '1')
+    delete_client(cur, '1')
+    find_client(cur, name='Sergey')
+
     conn.commit()
 
 conn.close()
