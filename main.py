@@ -103,7 +103,7 @@ def delete_client(cursor, client_id):
         ''', (client_id,))
 
 # 7. Функция, позволяющая найти клиента по его данным: имени, фамилии, email или телефону
-def find_client(cursor, id=None, name=None, patronymic=None, sirname=None, email=None, phone=None):
+def find_client(cursor, id=None, name=None, patronymic=None, sirname=None, email=None, phone_number=None):
     client_name_data = {
         'client_name':{
             'id': id,
@@ -111,57 +111,43 @@ def find_client(cursor, id=None, name=None, patronymic=None, sirname=None, email
             'patronymic': patronymic,
             'sirname': sirname,
             'email': email,
-            'phone': phone
+            'phone_number': phone_number
         },
-        'phone': phone
+        'phone_number': phone_number
     }
-    for name_of_table in client_name_data:
+    if client_name_data['phone_number'] is not None:
         for key, value in client_name_data['client_name'].items():
             if value is not None:
-                # table_name = name_of_table
-                qwer = sql.SQL('''
-                    SELECT id, name, patronymic, sirname, email FROM {table_name} WHERE {column_name} = {column_value}
+                query = sql.SQL('''
+                    SELECT
+                        id,
+                        name,
+                        patronymic,
+                        sirname,
+                        email
+                    FROM {table_name}
+                    WHERE {column_name} = %s
                     ''').format(
-                    table_name = sql.Identifier(name_of_table),
-                    column_name = sql.Identifier(key.strip()),
-                    column_value = sql.Identifier(value)
+                    table_name=sql.Identifier('client_name'),
+                    column_name=sql.Identifier(str(key)),
                 )
+                cursor.execute(query, (value,))
+                return cursor.fetchall()
             else:
-
-                if client_name_data['phone'] is not None:
-                    # table_name = name_of_table
-                    qwer = sql.SQL(f'''
-                                    SELECT
-                                        client_name.id,
-                                        client_name.name,
-                                        client_name.patronymic,
-                                        client_name.sirname,
-                                        client_name.email
-                                    FROM phone
-                                    JOIN client_name ON phone.client_id = client_name.id 
-                                    WHERE phone.phone_number = {column_value};
-                                    ''').format(
-                                            # table_name=sql.Identifier(name_of_table),
-                                            column_value=sql.Identifier(name_of_table['phone'])
-                                            )
-                        # column_name=sql.Identifier(key)
-        cursor.execute(qwer)
-        return cursor.fetchall()
-
-def test_sql(cursor, id=None, name=None, patronymic=None, sirname=None, email=None, phone=None):
-    qwer = sql.SQL('''
-        SELECT
-            id,
-            name,patronymic,
-            sirname,
-            email
-        FROM {table_name} WHERE {column_name} = {column_value}''').format(
-        table_name=sql.Identifier('client_name'),
-        column_name=sql.Identifier('patronymic'),
-        column_value=sql.Identifier('Semenovitch')
-    )
-    cursor.execute(qwer)
-    return cursor.fetchall()
+                # if client_name_data['phone_number'] is not None:
+                    query = sql.SQL('''
+                        SELECT
+                            client_name.id,
+                            client_name.name,
+                            client_name.patronymic,
+                            client_name.sirname,
+                            client_name.email
+                        FROM client_name
+                        JOIN phone ON client_name.id = phone.client_id
+                        WHERE phone.phone_number = %s
+                    ''')
+                    cursor.execute(query, ('phone_number',))
+                    return cursor.fetchall()
 
 def test_sql_1(cursor, id=None, name=None, patronymic=None, sirname=None, email=None, phone=None):
     qwer = sql.SQL('''
@@ -179,7 +165,7 @@ def test_sql_1(cursor, id=None, name=None, patronymic=None, sirname=None, email=
     return cursor.fetchall()
 
 with conn.cursor() as cur:
-    print(test_sql_1(cur))
+    print(find_client(cur, phone_number='213434578'))
     conn.commit()
 
     # create_relations()
