@@ -157,14 +157,29 @@ def test_sql(cursor, id=None, name=None, patronymic=None, sirname=None, email=No
             email
         FROM {table_name} WHERE {column_name} = {column_value}''').format(
         table_name=sql.Identifier('client_name'),
-        column_name=sql.Identifier('id'),
-        column_value=sql.Identifier('7')
+        column_name=sql.Identifier('patronymic'),
+        column_value=sql.Identifier('Semenovitch')
     )
     cursor.execute(qwer)
     return cursor.fetchall()
 
+def test_sql_1(cursor, id=None, name=None, patronymic=None, sirname=None, email=None, phone=None):
+    qwer = sql.SQL('''
+        SELECT
+            id,
+            name,patronymic,
+            sirname,
+            email
+        FROM {table_name} WHERE {column_name} = %s''').format(
+        table_name=sql.Identifier('client_name'),
+        column_name=sql.Identifier('patronymic'),
+        # column_value=sql.Identifier('Semenovitch')
+    )
+    cursor.execute(qwer, ('Semenovitch',))
+    return cursor.fetchall()
+
 with conn.cursor() as cur:
-    print(test_sql(cur))
+    print(test_sql_1(cur))
     conn.commit()
 
     # create_relations()
