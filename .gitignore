@@ -4,3 +4,4 @@
 /Scripts/
 pyvenv.cfg
 test.py
+db_py_env/
